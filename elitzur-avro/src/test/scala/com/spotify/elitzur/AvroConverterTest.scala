@@ -14,11 +14,13 @@ import enumeratum._
 import org.apache.avro.Schema
 
 object AvroClassConverterTest {
-  case class TestTypes(userAge: Long,
-                       userFloat: Float,
-                       userLong: Long,
-                       innerOpt: Option[Inner],
-                       inner: Inner)
+  case class TestTypes(
+      userAge: Long,
+      userFloat: Float,
+      userLong: Long,
+      innerOpt: Option[Inner],
+      inner: Inner
+  )
 
   case class Inner(userId: String, countryCode: String, playCount: Long)
 
@@ -41,12 +43,16 @@ class AvroConverterTest extends AnyFlatSpec with Matchers {
 
     val schema: Schema = TestAvroEnum.getClassSchema
     val converter: AvroConverter[TestEnum] = implicitly
-    val decoder = new BinaryMessageDecoder[TestAvroEnum](new SpecificData(), schema)
+    val decoder =
+      new BinaryMessageDecoder[TestAvroEnum](new SpecificData(), schema)
 
-    val a: TestEnum = TestEnum(EnumValue.SnakeCaseBbb, Some(EnumValue.SnakeCaseCcc))
-    val rec: GenericData.Record = converter.toAvro(a, schema).asInstanceOf[GenericData.Record]
-    val encoder = new BinaryMessageEncoder[GenericData.Record](new GenericData(), schema)
-    val bytes: ByteBuffer =  encoder.encode(rec)
+    val a: TestEnum =
+      TestEnum(EnumValue.SnakeCaseBbb, Some(EnumValue.SnakeCaseCcc))
+    val rec: GenericData.Record =
+      converter.toAvro(a, schema).asInstanceOf[GenericData.Record]
+    val encoder =
+      new BinaryMessageEncoder[GenericData.Record](new GenericData(), schema)
+    val bytes: ByteBuffer = encoder.encode(rec)
     val converted: TestAvroEnum = decoder.decode(bytes)
 
     val b: TestEnum = converter.fromAvro(converted, schema)
@@ -61,7 +67,8 @@ class AvroConverterTest extends AnyFlatSpec with Matchers {
     val converter: AvroConverter[TestEnum] = implicitly
     val schema: Schema = TestAvroEnum.getClassSchema
 
-    val a: TestEnum = TestEnum(EnumValue.SnakeCaseBbb, Some(EnumValue.SnakeCaseCcc))
+    val a: TestEnum =
+      TestEnum(EnumValue.SnakeCaseBbb, Some(EnumValue.SnakeCaseCcc))
     val b: TestEnum = converter.fromAvro(converter.toAvro(a, schema), schema)
     assert(a == b)
 
@@ -75,7 +82,8 @@ class AvroConverterTest extends AnyFlatSpec with Matchers {
     import com.spotify.elitzur.converters.avro._
     import com.spotify.elitzur.schemas._
 
-    val a: TestTypes = TestTypes(0L, 0F, 0L, Some(Inner("", "", 0L)), Inner("", "", 0L))
+    val a: TestTypes =
+      TestTypes(0L, 0f, 0L, Some(Inner("", "", 0L)), Inner("", "", 0L))
     val converter: AvroConverter[TestTypes] = implicitly
     converter.toAvro(a, TestAvroTypes.getClassSchema)
   }
@@ -85,18 +93,21 @@ class AvroConverterTest extends AnyFlatSpec with Matchers {
     import com.spotify.elitzur.converters.avro._
     import com.spotify.elitzur.schemas._
 
-    val a: TestTypes = TestTypes(0L, 0F, 0L, Some(Inner("", "", 0L)), Inner("", "", 0L))
+    val a: TestTypes =
+      TestTypes(0L, 0f, 0L, Some(Inner("", "", 0L)), Inner("", "", 0L))
     val converter: AvroConverter[TestTypes] = implicitly
 
-    val inner = InnerNestedType.newBuilder()
+    val inner = InnerNestedType
+      .newBuilder()
       .setUserId("")
       .setCountryCode("")
       .setPlayCount(0L)
       .build()
 
-    val testAvroTypeR = TestAvroTypes.newBuilder()
+    val testAvroTypeR = TestAvroTypes
+      .newBuilder()
       .setUserAge(0L)
-      .setUserFloat(0F)
+      .setUserFloat(0f)
       .setUserLong(0L)
       .setInnerOpt(inner)
       .setInner(inner)

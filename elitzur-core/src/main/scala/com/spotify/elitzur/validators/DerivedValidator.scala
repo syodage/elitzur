@@ -24,15 +24,17 @@ import magnolia._
 import scala.collection.compat.immutable.ArraySeq
 
 @SuppressWarnings(Array("org.wartremover.warts.Var"))
-final private[elitzur] case class DerivedValidator[T] private(caseClass: CaseClass[Validator, T])
-                                                             (implicit reporter: MetricsReporter)
-  extends Validator[T] {
+final private[elitzur] case class DerivedValidator[T] private (
+    caseClass: CaseClass[Validator, T]
+)(implicit reporter: MetricsReporter)
+    extends Validator[T] {
   //scalastyle:off method.length cyclomatic.complexity
-  override def validateRecord(a: PreValidation[T],
-                              path: String = "",
-                              outermostClassName: Option[String] = None,
-                              config: ValidationRecordConfig = DefaultRecordConfig)
-  : PostValidation[T] = {
+  override def validateRecord(
+      a: PreValidation[T],
+      path: String = "",
+      outermostClassName: Option[String] = None,
+      config: ValidationRecordConfig = DefaultRecordConfig
+  ): PostValidation[T] = {
     val ps = caseClass.parameters
     val cs = new Array[Any](ps.length)
     var i = 0
@@ -40,35 +42,35 @@ final private[elitzur] case class DerivedValidator[T] private(caseClass: CaseCla
     var atLeastOneInvalid = false
 
     val counterClassName =
-      if (outermostClassName.isEmpty) caseClass.typeName.full else outermostClassName.get
+      if (outermostClassName.isEmpty) caseClass.typeName.full
+      else outermostClassName.get
     while (i < ps.length) {
       val p = ps(i)
       val deref = p.dereference(a.forceGet)
       val v =
         if (!p.typeclass.isInstanceOf[IgnoreValidator[_]]) {
           val name = new JStringBuilder(path.length + p.label.length)
-            .append(path).append(p.label).toString
+            .append(path)
+            .append(p.label)
+            .toString
           //TODO: This get wrapped in unvalidated seems unnecessary, how can we get rid of it
-          val o = if (
-             p.typeclass.isInstanceOf[FieldValidator[_]]
-          ) {
+          val o = if (p.typeclass.isInstanceOf[FieldValidator[_]]) {
             val v = p.typeclass.validateRecord(Unvalidated(deref))
-            val validationType = p.typeclass.asInstanceOf[FieldValidator[_]].validationType
+            val validationType =
+              p.typeclass.asInstanceOf[FieldValidator[_]].validationType
 
             val c: ValidationFieldConfig = config.m
-              .getOrElse(name, DefaultFieldConfig).asInstanceOf[ValidationFieldConfig]
+              .getOrElse(name, DefaultFieldConfig)
+              .asInstanceOf[ValidationFieldConfig]
             if (v.isValid) {
               if (c != NoCounter) {
-                reporter.reportValid(
-                  counterClassName,
-                  name,
-                  validationType)
+                reporter.reportValid(counterClassName, name, validationType)
               }
-            }
-            else if (v.isInvalid) {
+            } else if (v.isInvalid) {
               if (c == ThrowException) {
                 throw new DataInvalidException(
-                  s"Invalid value ${v.forceGet.toString} found for field $path${p.label}")
+                  s"Invalid value ${v.forceGet.toString} found for field $path${p.label}"
+                )
               }
               if (c != NoCounter) {
                 reporter.reportInvalid(
@@ -83,7 +85,10 @@ final private[elitzur] case class DerivedValidator[T] private(caseClass: CaseCla
             p.typeclass.validateRecord(
               Unvalidated(deref),
               new JStringBuilder(path.length + p.label.length + 1)
-                .append(path).append(p.label).append(".").toString,
+                .append(path)
+                .append(p.label)
+                .append(".")
+                .toString,
               Some(counterClassName),
               config
             )
@@ -91,14 +96,12 @@ final private[elitzur] case class DerivedValidator[T] private(caseClass: CaseCla
 
           if (o.isValid) {
             atLeastOneValid = true
-          }
-          else if (o.isInvalid) {
+          } else if (o.isInvalid) {
             atLeastOneInvalid = true
           }
 
           o.forceGet
-        }
-        else {
+        } else {
           deref
         }
       cs.update(i, v)
@@ -107,13 +110,11 @@ final private[elitzur] case class DerivedValidator[T] private(caseClass: CaseCla
 
     val record = caseClass.rawConstruct(ArraySeq.unsafeWrapArray(cs))
 
-    if (atLeastOneInvalid){
+    if (atLeastOneInvalid) {
       Invalid(record)
-    }
-    else if (atLeastOneValid) {
+    } else if (atLeastOneValid) {
       Valid(record)
-    }
-    else {
+    } else {
       IgnoreValidation(record)
     }
   }

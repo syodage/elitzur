@@ -19,7 +19,8 @@ package com.spotify.elitzur.validators
 import scala.util.Try
 import scala.collection.compat._
 
-private[this] case class PostValidationWrapper[A](inner: A) extends PostValidation[A] {
+private[this] case class PostValidationWrapper[A](inner: A)
+    extends PostValidation[A] {
   override def isValid: Boolean = inner.asInstanceOf[PostValidation[_]].isValid
 
   override def get: A = inner
@@ -35,7 +36,8 @@ private[this] case class PostValidationWrapper[A](inner: A) extends PostValidati
   override def toOption: Option[A] =
     throw new NotImplementedError("Call forceGet or inner, not implemented")
 
-  override def isNonvalidated: Boolean = inner.asInstanceOf[PostValidation[_]].isNonvalidated
+  override def isNonvalidated: Boolean =
+    inner.asInstanceOf[PostValidation[_]].isNonvalidated
 
   override def toString: String = inner.toString
 }
@@ -99,7 +101,8 @@ abstract class PostValidation[+A] extends ValidationStatus[A] {
 case class Unvalidated[+A](x: A) extends PreValidation[A] {
   override def isValid: Boolean = false
 
-  override def get: A = throw new Exception("Can't get Unvalidated data, use getOpt")
+  override def get: A =
+    throw new Exception("Can't get Unvalidated data, use getOpt")
   def getOpt: Option[A] = Some(x)
 
   override def isNonvalidated: Boolean = false
@@ -108,7 +111,8 @@ case class Unvalidated[+A](x: A) extends PreValidation[A] {
 
   override def map[B](f: A => B): ValidationStatus[B] = Unvalidated(f(x))
 
-  override def flatMap[B](f: A => ValidationStatus[B]): ValidationStatus[B] = f(x)
+  override def flatMap[B](f: A => ValidationStatus[B]): ValidationStatus[B] =
+    f(x)
 
   override def toOption: Option[A] = Some(x)
 
@@ -124,7 +128,8 @@ case class Valid[+A](x: A) extends PostValidation[A] {
 
   override def map[B](f: A => B): ValidationStatus[B] = Valid(f(this.x))
 
-  override def flatMap[B](f: A => ValidationStatus[B]): ValidationStatus[B] = f(this.x)
+  override def flatMap[B](f: A => ValidationStatus[B]): ValidationStatus[B] =
+    f(this.x)
 
   override def toOption: Option[A] = Some(x)
 
@@ -142,7 +147,8 @@ final case class IgnoreValidation[+A](a: A) extends PostValidation[A] {
 
   override def map[B](f: A => B): ValidationStatus[B] = IgnoreValidation(f(a))
 
-  override def flatMap[B](f: A => ValidationStatus[B]): ValidationStatus[B] = f(a)
+  override def flatMap[B](f: A => ValidationStatus[B]): ValidationStatus[B] =
+    f(a)
 
   override def toOption: Option[A] = Some(a)
 
@@ -151,11 +157,13 @@ final case class IgnoreValidation[+A](a: A) extends PostValidation[A] {
 
 final case class Invalid[+A](x: A) extends PostValidation[A] {
   override def isValid: Boolean = false
-  override def get: A = throw new Exception("Can't get Invalid data, use getInvalid")
+  override def get: A =
+    throw new Exception("Can't get Invalid data, use getInvalid")
   def getOpt: Option[A] = Try(recover(identity)).toOption
   def getInvalid: A = x
   override def map[B](f: A => B): ValidationStatus[B] = Invalid(f(x))
-  override def flatMap[B](f: A => ValidationStatus[B]): ValidationStatus[B] = f(x)
+  override def flatMap[B](f: A => ValidationStatus[B]): ValidationStatus[B] =
+    f(x)
   def recover[B](f: A => B): B = f(x)
   def recoverValid[B](f: A => B): Valid[B] = Valid(recover(f))
 

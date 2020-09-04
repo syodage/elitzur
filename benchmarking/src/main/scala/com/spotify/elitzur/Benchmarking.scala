@@ -20,78 +20,84 @@ import java.util.concurrent.TimeUnit
 
 import com.spotify.elitzur.validators.{PostValidation, Unvalidated, Validator}
 import com.spotify.elitzur.scio._
-import org.openjdk.jmh.annotations.{Benchmark, BenchmarkMode, Mode, OutputTimeUnit}
+import org.openjdk.jmh.annotations.{
+  Benchmark,
+  BenchmarkMode,
+  Mode,
+  OutputTimeUnit
+}
 
 object CaseClassesToValidate {
   case class ThreeFields(
-                          age: AgeExample,
-                          countryCode: CountryCodeExample,
-                          nnl: NonNegativeLongExample)
+      age: AgeExample,
+      countryCode: CountryCodeExample,
+      nnl: NonNegativeLongExample
+  )
 
   case class TenFieldsThreeValidation(
-                                       age: AgeExample,
-                                       countryCode: CountryCodeExample,
-                                       nnl: NonNegativeLongExample,
-                                       a: String,
-                                       b: Long,
-                                       c: Long,
-                                       d: Double,
-                                       e: String,
-                                       f: String,
-                                       g: String
-                                     )
-
+      age: AgeExample,
+      countryCode: CountryCodeExample,
+      nnl: NonNegativeLongExample,
+      a: String,
+      b: Long,
+      c: Long,
+      d: Double,
+      e: String,
+      f: String,
+      g: String
+  )
 
   case class TenFields(
-                        age: AgeExample,
-                        countryCode: CountryCodeExample,
-                        nnl: NonNegativeLongExample,
-                        br: BucketizedReferrerExample,
-                        age2: AgeExample,
-                        age3: AgeExample,
-                        age4: AgeExample,
-                        age5: AgeExample,
-                        countryCode2: CountryCodeExample,
-                        nnl2: NonNegativeLongExample
-                      )
-
+      age: AgeExample,
+      countryCode: CountryCodeExample,
+      nnl: NonNegativeLongExample,
+      br: BucketizedReferrerExample,
+      age2: AgeExample,
+      age3: AgeExample,
+      age4: AgeExample,
+      age5: AgeExample,
+      countryCode2: CountryCodeExample,
+      nnl2: NonNegativeLongExample
+  )
 
   case class TwentyFieldsTenValidation(
-                                        age: AgeExample,
-                                        countryCode: CountryCodeExample,
-                                        nnl: NonNegativeLongExample,
-                                        br: BucketizedReferrerExample,
-                                        age2: AgeExample,
-                                        age3: AgeExample,
-                                        age4: AgeExample,
-                                        age5: AgeExample,
-                                        countryCode2: CountryCodeExample,
-                                        nnl2: NonNegativeLongExample,
-                                        a: String,
-                                        b: Long,
-                                        c: Long,
-                                        d: Double,
-                                        e: String,
-                                        f: String,
-                                        g: String,
-                                        h: Long,
-                                        i: Double,
-                                        j: Long
-                                      )
+      age: AgeExample,
+      countryCode: CountryCodeExample,
+      nnl: NonNegativeLongExample,
+      br: BucketizedReferrerExample,
+      age2: AgeExample,
+      age3: AgeExample,
+      age4: AgeExample,
+      age5: AgeExample,
+      countryCode2: CountryCodeExample,
+      nnl2: NonNegativeLongExample,
+      a: String,
+      b: Long,
+      c: Long,
+      d: Double,
+      e: String,
+      f: String,
+      g: String,
+      h: Long,
+      i: Double,
+      j: Long
+  )
 
+  case class FiveNestedFiveFields(
+      field1: FiveFields,
+      field2: FiveFields,
+      field3: FiveFields,
+      field4: FiveFields,
+      field5: FiveFields
+  )
 
-  case class FiveNestedFiveFields(field1: FiveFields,
-                                  field2: FiveFields,
-                                  field3: FiveFields,
-                                  field4: FiveFields,
-                                  field5: FiveFields)
-
-  case class FiveFields(age: AgeExample,
-                        countryCode: CountryCodeExample,
-                        nnl: NonNegativeLongExample,
-                        br: BucketizedReferrerExample,
-                        age2: AgeExample
-                       )
+  case class FiveFields(
+      age: AgeExample,
+      countryCode: CountryCodeExample,
+      nnl: NonNegativeLongExample,
+      br: BucketizedReferrerExample,
+      age2: AgeExample
+  )
 }
 
 object CaseClassValidators {
@@ -227,27 +233,37 @@ class Benchmarking {
   import CaseClassesToValidate._
   import Fields._
 
-  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(TimeUnit.SECONDS)
+  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(
+    TimeUnit.SECONDS
+  )
   def validateThree(): PostValidation[ThreeFields] = {
     threeVal.validateRecord(Unvalidated(Three))
   }
 
-  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(TimeUnit.SECONDS)
+  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(
+    TimeUnit.SECONDS
+  )
   def validateTen(): PostValidation[TenFields] = {
     tenVal.validateRecord(Unvalidated(Ten))
   }
 
-  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(TimeUnit.SECONDS)
+  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(
+    TimeUnit.SECONDS
+  )
   def validateTwenty(): PostValidation[TwentyFieldsTenValidation] = {
     twentyV10Val.validateRecord(Unvalidated(Twenty))
   }
 
-  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(TimeUnit.SECONDS)
+  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(
+    TimeUnit.SECONDS
+  )
   def validateTenV3(): PostValidation[TenFieldsThreeValidation] = {
     tenV3Val.validateRecord(Unvalidated(TenV3))
   }
 
-  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(TimeUnit.SECONDS)
+  @Benchmark @BenchmarkMode(Array(Mode.Throughput)) @OutputTimeUnit(
+    TimeUnit.SECONDS
+  )
   def validatefiveN5(): PostValidation[FiveNestedFiveFields] = {
     fiveNFiveVal.validateRecord(Unvalidated(fiveN5))
   }

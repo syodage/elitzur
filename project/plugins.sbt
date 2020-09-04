@@ -28,3 +28,4 @@ libraryDependencies ++= Seq(
   "com.spotify.checkstyle" % "spotify-checkstyle-config" % "1.0.10",
   "com.puppycrawl.tools" % "checkstyle" % "8.30"
 )
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.0")

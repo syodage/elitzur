@@ -23,7 +23,8 @@ trait ValidationRecordConfig extends ValidationConfig {
   def m: Map[String, ValidationConfig]
 }
 
-case class MapConfig(m: Map[String, ValidationConfig]) extends ValidationRecordConfig
+case class MapConfig(m: Map[String, ValidationConfig])
+    extends ValidationRecordConfig
 
 case object DefaultRecordConfig extends ValidationRecordConfig {
   override def m: Map[String, ValidationConfig] = Map()
@@ -31,7 +32,7 @@ case object DefaultRecordConfig extends ValidationRecordConfig {
 
 object ValidationRecordConfig {
   def apply(s: (String, ValidationConfig)*): ValidationRecordConfig =
-    MapConfig(Map(s:_*))
+    MapConfig(Map(s: _*))
 }
 
 case object ThrowException extends ValidationFieldConfig

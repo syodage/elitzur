@@ -23,33 +23,47 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.{FlatSpec, PrivateMethodTester}
 
 //scalastyle:off no.whitespace.before.left.bracket
-class ElitzurMetricsTest extends AnyFlatSpec with PrivateMethodTester with Matchers {
+class ElitzurMetricsTest
+    extends AnyFlatSpec
+    with PrivateMethodTester
+    with Matchers {
 
   case class Test(test: Int)
 
-  case class HasValidationTypes(inner: CountryCodeTesting,
-                                innerOption: Option[CountryCodeTesting])
-  case class HasNestedValidationTypes(outer: HasValidationTypes,
-                                      outerOption: Option[HasValidationTypes])
+  case class HasValidationTypes(
+      inner: CountryCodeTesting,
+      innerOption: Option[CountryCodeTesting]
+  )
+  case class HasNestedValidationTypes(
+      outer: HasValidationTypes,
+      outerOption: Option[HasValidationTypes]
+  )
 
-  case class HasWrappedValidationTypes(inner: ValidationStatus[CountryCodeTesting],
-                                       innerOption: ValidationStatus[Option[CountryCodeTesting]])
-  case class HasNestedWrappedValidationTypes(outer: ValidationStatus[HasWrappedValidationTypes],
-                                             outerOption:
-                                              ValidationStatus[Option[HasValidationTypes]])
+  case class HasWrappedValidationTypes(
+      inner: ValidationStatus[CountryCodeTesting],
+      innerOption: ValidationStatus[Option[CountryCodeTesting]]
+  )
+  case class HasNestedWrappedValidationTypes(
+      outer: ValidationStatus[HasWrappedValidationTypes],
+      outerOption: ValidationStatus[Option[HasValidationTypes]]
+  )
 
-  case class HasMixedWrapping(outer: ValidationStatus[HasWrappedValidationTypes],
-                              outerOption: ValidationStatus[Option[HasValidationTypes]])
+  case class HasMixedWrapping(
+      outer: ValidationStatus[HasWrappedValidationTypes],
+      outerOption: ValidationStatus[Option[HasValidationTypes]]
+  )
 
   "getValidationTypeFromCaseClass" should "return unqualified validation type name" in {
-    val getValidationTypeFromCaseClass = PrivateMethod[String]('getValidationTypeFromCaseClass)
+    val getValidationTypeFromCaseClass =
+      PrivateMethod[String]('getValidationTypeFromCaseClass)
     val countryCodeName = ElitzurMetrics invokePrivate
       getValidationTypeFromCaseClass(classOf[HasValidationTypes], "inner")
     countryCodeName shouldBe "CountryCodeTesting"
   }
 
   private def testGetValidationTypeFromCaseClass(className: Class[_]) = {
-    val getValidationTypeFromCaseClass = PrivateMethod[String]('getValidationTypeFromCaseClass)
+    val getValidationTypeFromCaseClass =
+      PrivateMethod[String]('getValidationTypeFromCaseClass)
     val countryCodeName = ElitzurMetrics invokePrivate
       getValidationTypeFromCaseClass(className, "outer.inner")
     countryCodeName shouldBe "CountryCodeTesting"

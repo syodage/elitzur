@@ -16,7 +16,10 @@
  */
 package com.spotify.elitzur.scio
 
-import com.spotify.elitzur.converters.avro.{AvroConverter, AvroElitzurConversionUtils}
+import com.spotify.elitzur.converters.avro.{
+  AvroConverter,
+  AvroElitzurConversionUtils
+}
 import com.spotify.scio.coders.Coder
 import org.apache.avro.Schema
 import org.apache.avro.generic.{GenericData, GenericRecord}
@@ -25,8 +28,9 @@ import org.apache.beam.sdk.transforms.DoFn.ProcessElement
 
 import scala.reflect.ClassTag
 
-class FromAvroConverterDoFn[GR <: GenericRecord, T : Coder](ac: AvroConverter[T])
-  extends DoFn[GR, T] with Serializable {
+class FromAvroConverterDoFn[GR <: GenericRecord, T: Coder](ac: AvroConverter[T])
+    extends DoFn[GR, T]
+    with Serializable {
   @ProcessElement
   def processElement(c: DoFn[GR, T]#ProcessContext): Unit = {
     val e = c.element()
@@ -34,12 +38,17 @@ class FromAvroConverterDoFn[GR <: GenericRecord, T : Coder](ac: AvroConverter[T]
   }
 }
 
-class ToAvroConverterDoFn[T : Coder, GR <: GenericRecord : Coder : ClassTag](ac: AvroConverter[T])
-  extends DoFn[T, GR] with Serializable {
+class ToAvroConverterDoFn[T: Coder, GR <: GenericRecord: Coder: ClassTag](
+    ac: AvroConverter[T]
+) extends DoFn[T, GR]
+    with Serializable {
 
   //We use reflection to get the schema here since it's only invoked per-worker instead of element
-  val schemaSer: String = implicitly[ClassTag[GR]].runtimeClass.getMethod("getClassSchema")
-    .invoke(null).asInstanceOf[Schema].toString(false)
+  val schemaSer: String = implicitly[ClassTag[GR]].runtimeClass
+    .getMethod("getClassSchema")
+    .invoke(null)
+    .asInstanceOf[Schema]
+    .toString(false)
   @transient lazy val schemaSerDe: Schema = new Schema.Parser().parse(schemaSer)
 
   @ProcessElement
@@ -49,9 +58,11 @@ class ToAvroConverterDoFn[T : Coder, GR <: GenericRecord : Coder : ClassTag](ac:
   }
 }
 
-class ToAvroDefaultConverterDoFn[T : Coder, GR <: GenericRecord : Coder]
-(defaultValueRecord: GR, ac: AvroConverter[T])
-  extends DoFn[T, GR] with Serializable {
+class ToAvroDefaultConverterDoFn[T: Coder, GR <: GenericRecord: Coder](
+    defaultValueRecord: GR,
+    ac: AvroConverter[T]
+) extends DoFn[T, GR]
+    with Serializable {
 
   @transient lazy val defaultGenericData: GenericData.Record =
     AvroElitzurConversionUtils.recordToGenericData(defaultValueRecord)

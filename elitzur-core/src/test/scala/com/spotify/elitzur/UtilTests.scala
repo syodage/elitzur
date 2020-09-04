@@ -23,6 +23,8 @@ class UtilTests extends FlatSpec with Matchers {
   "camelToSnake" should "convert camelCase to snake_case" in {
     val inputs = Seq("myField", "inputFieldName", "nocamels")
 
-    inputs.map(camelToSnake) should be (Seq("my_field", "input_field_name", "nocamels"))
+    inputs.map(camelToSnake) should be(
+      Seq("my_field", "input_field_name", "nocamels")
+    )
   }
 }

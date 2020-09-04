@@ -18,11 +18,19 @@ package com.spotify.elitzur
 
 import java.util.Locale
 
-import com.spotify.elitzur.validators.{BaseCompanion, BaseValidationType, SimpleCompanionImplicit}
+import com.spotify.elitzur.validators.{
+  BaseCompanion,
+  BaseValidationType,
+  SimpleCompanionImplicit
+}
 
 //scalastyle:off line.size.limit
 import com.spotify.elitzur.types.Owner
-import com.spotify.elitzur.validators.{DynamicCompanion, DynamicCompanionImplicit, DynamicValidationType}
+import com.spotify.elitzur.validators.{
+  DynamicCompanion,
+  DynamicCompanionImplicit,
+  DynamicValidationType
+}
 //scalastyle:on line.size.limit
 
 private[elitzur] object ValidationTypeImplicits {
@@ -39,7 +47,7 @@ private[elitzur] object ValidationTypeImplicits {
     SimpleCompanionImplicit(NonNegativeDoubleTestingCompanion)
 
   implicit val dtC
-  : DynamicCompanionImplicit[String, Set[String], DynamicString] =
+      : DynamicCompanionImplicit[String, Set[String], DynamicString] =
     DynamicCompanionImplicit(DynamicString)
 }
 
@@ -58,7 +66,8 @@ case class CountryCodeTesting(data: String) extends BaseValidationType[String] {
   override def checkValid: Boolean = Locale.getISOCountries.contains(data)
 }
 
-object CountryCodeTestingCompanion extends BaseCompanion[String, CountryCodeTesting] {
+object CountryCodeTestingCompanion
+    extends BaseCompanion[String, CountryCodeTesting] {
   def validationType: String = "CountryCode"
 
   def bigQueryType: String = "STRING"
@@ -94,7 +103,8 @@ case class NonNegativeLongTesting(data: Long) extends BaseValidationType[Long] {
   override def checkValid: Boolean = data >= 0L
 }
 
-object NonNegativeLongTestingCompanion extends BaseCompanion[Long, NonNegativeLongTesting] {
+object NonNegativeLongTestingCompanion
+    extends BaseCompanion[Long, NonNegativeLongTesting] {
   def validationType: String = "NonNegativeLong"
 
   def bigQueryType: String = "INTEGER"
@@ -108,18 +118,22 @@ object NonNegativeLongTestingCompanion extends BaseCompanion[Long, NonNegativeLo
   override def description: String = "Non negative long"
 }
 
-case class NonNegativeDoubleTesting(data: Double) extends BaseValidationType[Double] {
+case class NonNegativeDoubleTesting(data: Double)
+    extends BaseValidationType[Double] {
   override def checkValid: Boolean = data >= 0.0
 }
 
-object NonNegativeDoubleTestingCompanion extends BaseCompanion[Double, NonNegativeDoubleTesting] {
+object NonNegativeDoubleTestingCompanion
+    extends BaseCompanion[Double, NonNegativeDoubleTesting] {
   def validationType: String = "NonNegativeDouble"
 
   def bigQueryType: String = "FLOAT"
 
-  def apply(data: Double): NonNegativeDoubleTesting = NonNegativeDoubleTesting(data)
+  def apply(data: Double): NonNegativeDoubleTesting =
+    NonNegativeDoubleTesting(data)
 
-  def parse(data: Double): NonNegativeDoubleTesting = NonNegativeDoubleTesting(data)
+  def parse(data: Double): NonNegativeDoubleTesting =
+    NonNegativeDoubleTesting(data)
 
   override def owner: Owner = Blizzard
 
@@ -128,7 +142,7 @@ object NonNegativeDoubleTestingCompanion extends BaseCompanion[Double, NonNegati
 
 //scalastyle:off line.size.limit
 case class DynamicString(data: String, arg: Option[Set[String]] = None)
-  extends DynamicValidationType[String, Set[String], DynamicString] {
+    extends DynamicValidationType[String, Set[String], DynamicString] {
   override def checkValid: Boolean = {
     arg.exists(_.contains(data))
   }
@@ -136,7 +150,8 @@ case class DynamicString(data: String, arg: Option[Set[String]] = None)
 }
 //scalastyle:on line.size.limit
 
-object DynamicString  extends DynamicCompanion[String, Set[String], DynamicString] {
+object DynamicString
+    extends DynamicCompanion[String, Set[String], DynamicString] {
   def validationType: String = "DynamicCountryCode"
 
   def bigQueryType: String = "STRING"

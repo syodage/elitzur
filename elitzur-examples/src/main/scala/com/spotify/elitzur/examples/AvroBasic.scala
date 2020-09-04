@@ -34,51 +34,77 @@ object AvroBasic {
   // Age, NonNegativeLong and CountryCode are types that we validate
   // userFloat is a field which we choose to not validate.
   case class User(
-                   userAge: Age,
-                   userLong: NonNegativeLong,
-                   userFloat: Float,
-                   inner: InnerNested
-                 )
+      userAge: Age,
+      userLong: NonNegativeLong,
+      userFloat: Float,
+      inner: InnerNested
+  )
 
   case class InnerNested(countryCode: CountryCode)
 
   // A MetricsReporter is needed to keep track of how many records are valid and invalid
   // For Scio use cases, one does not need to define a MetricsReporter
   implicit val metricsReporter: MetricsReporter = new MetricsReporter {
-    val map : scala.collection.mutable.Map[String, Int] =
+    val map: scala.collection.mutable.Map[String, Int] =
       scala.collection.mutable.Map[String, Int]().withDefaultValue(0)
-    override def reportValid(className: String, fieldName: String, validationType: String): Unit =
+    override def reportValid(
+        className: String,
+        fieldName: String,
+        validationType: String
+    ): Unit =
       map(s"$className.$fieldName.$validationType.valid") += 1
-    override def reportInvalid(className: String, fieldName: String, validationType: String): Unit =
+    override def reportInvalid(
+        className: String,
+        fieldName: String,
+        validationType: String
+    ): Unit =
       map(s"$className.$fieldName.$validationType.invalid") += 1
     override def toString: String = map.toString()
   }
 
   // Deserialized avro records.
   //scalastyle:off magic.number
-  val builder :TestAvroTypes.Builder = TestAvroTypes.newBuilder()
-  val innerBuilder : InnerNestedType.Builder = InnerNestedType.newBuilder()
+  val builder: TestAvroTypes.Builder = TestAvroTypes.newBuilder()
+  val innerBuilder: InnerNestedType.Builder = InnerNestedType.newBuilder()
   val avroRecords: Seq[TestAvroTypes] = Seq(
     // record with all fields valid
     builder
       .setUserAge(33L)
       .setUserLong(45L)
       .setUserFloat(4f)
-      .setInner(innerBuilder.setCountryCode("US").setUserId("182").setPlayCount(72L).build())
+      .setInner(
+        innerBuilder
+          .setCountryCode("US")
+          .setUserId("182")
+          .setPlayCount(72L)
+          .build()
+      )
       .build(),
     // record with invalid age
     builder
       .setUserAge(-33L)
       .setUserLong(45L)
       .setUserFloat(4f)
-      .setInner(innerBuilder.setCountryCode("CA").setUserId("129").setPlayCount(43L).build())
+      .setInner(
+        innerBuilder
+          .setCountryCode("CA")
+          .setUserId("129")
+          .setPlayCount(43L)
+          .build()
+      )
       .build(),
     // record with invalid country code
     builder
       .setUserAge(33L)
       .setUserLong(45L)
       .setUserFloat(4f)
-      .setInner(innerBuilder.setCountryCode("USA").setUserId("678").setPlayCount(201L).build())
+      .setInner(
+        innerBuilder
+          .setCountryCode("USA")
+          .setUserId("678")
+          .setPlayCount(201L)
+          .build()
+      )
       .build()
   )
   //scalastyle:on magic.number

@@ -19,7 +19,11 @@ package com.spotify.elitzur.examples
 import java.util.Locale
 
 import com.spotify.elitzur.types.Owner
-import com.spotify.elitzur.validators.{BaseCompanion, BaseValidationType, SimpleCompanionImplicit}
+import com.spotify.elitzur.validators.{
+  BaseCompanion,
+  BaseValidationType,
+  SimpleCompanionImplicit
+}
 
 case object Blizzard extends Owner {
   override def name: String = "Blizzard"
@@ -74,7 +78,6 @@ object AgeCompanion extends BaseCompanion[Long, Age] {
   def description: String = "This represents an age above 0 and less than 150"
 }
 
-
 object NonNegativeLongCompanion extends BaseCompanion[Long, NonNegativeLong] {
   def validationType: String = "NonNegativeLong"
 
@@ -88,4 +91,3 @@ object NonNegativeLongCompanion extends BaseCompanion[Long, NonNegativeLong] {
 
   override def description: String = "Non negative long"
 }
-

@@ -16,7 +16,6 @@
  */
 package com.spotify.elitzur.examples
 
-
 import com.spotify.scio._
 import com.spotify.elitzur.schemas.{InnerNestedType, TestAvroTypes}
 import com.spotify.elitzur.scio._
@@ -36,37 +35,55 @@ object ScioAvro {
   private val logger = LoggerFactory.getLogger(this.getClass)
 
   case class User(
-                   userAge: Age,
-                   userLong: NonNegativeLong,
-                   userFloat: Float,
-                   inner: InnerNested
-                 )
+      userAge: Age,
+      userLong: NonNegativeLong,
+      userFloat: Float,
+      inner: InnerNested
+  )
 
   case class InnerNested(countryCode: CountryCode)
 
-  val builder :TestAvroTypes.Builder = TestAvroTypes.newBuilder()
-  val innerBuilder : InnerNestedType.Builder = InnerNestedType.newBuilder()
+  val builder: TestAvroTypes.Builder = TestAvroTypes.newBuilder()
+  val innerBuilder: InnerNestedType.Builder = InnerNestedType.newBuilder()
   val avroRecords: Seq[TestAvroTypes] = Seq(
     // record with all fields valid
     builder
       .setUserAge(33L)
       .setUserLong(45L)
       .setUserFloat(4f)
-      .setInner(innerBuilder.setCountryCode("US").setUserId("182").setPlayCount(72L).build())
+      .setInner(
+        innerBuilder
+          .setCountryCode("US")
+          .setUserId("182")
+          .setPlayCount(72L)
+          .build()
+      )
       .build(),
     // record with invalid age
     builder
       .setUserAge(-33L)
       .setUserLong(45L)
       .setUserFloat(4f)
-      .setInner(innerBuilder.setCountryCode("CA").setUserId("129").setPlayCount(43L).build())
+      .setInner(
+        innerBuilder
+          .setCountryCode("CA")
+          .setUserId("129")
+          .setPlayCount(43L)
+          .build()
+      )
       .build(),
     // record with invalid country code
     builder
       .setUserAge(33L)
       .setUserLong(45L)
       .setUserFloat(4f)
-      .setInner(innerBuilder.setCountryCode("USA").setUserId("678").setPlayCount(201L).build())
+      .setInner(
+        innerBuilder
+          .setCountryCode("USA")
+          .setUserId("678")
+          .setPlayCount(201L)
+          .build()
+      )
       .build()
   )
 
@@ -101,15 +118,18 @@ object ScioAvro {
     logCounters(elitzurCounters)
   }
 
-  def logCounters(counters: Map[MetricName, metrics.MetricValue[Long]]) : Unit = {
+  def logCounters(
+      counters: Map[MetricName, metrics.MetricValue[Long]]
+  ): Unit = {
     val logString =
       counters
         .foldLeft("")((acc, d) => {
           s"$acc\n Counter ${d._1.toString} has value ${d._2.committed.getOrElse(0L).toString}"
         })
 
-    logger.info(s"Logging Elitzur Counters: $logString \n Done logging Elitzur Counters")
+    logger.info(
+      s"Logging Elitzur Counters: $logString \n Done logging Elitzur Counters"
+    )
   }
-
 
 }

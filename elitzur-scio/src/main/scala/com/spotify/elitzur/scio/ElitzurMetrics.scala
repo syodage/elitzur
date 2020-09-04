@@ -30,42 +30,57 @@ import scala.collection.compat.immutable.ArraySeq
 object ElitzurMetrics {
 
   /** construct Beam counter from parts of counter name */
-  private[elitzur] def getCounter(className: String,
-                                  fieldName: String,
-                                  validationType: String,
-                                  state: CounterTypes.Value): Counter = {
+  private[elitzur] def getCounter(
+      className: String,
+      fieldName: String,
+      validationType: String,
+      state: CounterTypes.Value
+  ): Counter = {
     val stateStr = state.toString
     val sb =
-      new JStringBuilder(fieldName.length + 1 + validationType.length + 8 + stateStr.length)
+      new JStringBuilder(
+        fieldName.length + 1 + validationType.length + 8 + stateStr.length
+      )
     // This method is called very frequently (per-elitzur field per record) and building strings
     // the scala way is slower than expected (it seems to create multiple string builders)
     val counterName =
-    sb
-      .append(fieldName)
-      .append("/")
-      .append(validationType)
-      .append("/Elitzur")
-      .append(stateStr)
-      .toString
+      sb
+        .append(fieldName)
+        .append("/")
+        .append(validationType)
+        .append("/Elitzur")
+        .append(stateStr)
+        .toString
     ScioMetrics.counter(className, counterName)
   }
 
-  private[elitzur] def getClassNameFromCounterName(counterName: String): String =
+  private[elitzur] def getClassNameFromCounterName(
+      counterName: String
+  ): String =
     counterName.split("/")(0)
 
-  private[elitzur] def getFieldNameFromCounterName(counterName: String): String =
+  private[elitzur] def getFieldNameFromCounterName(
+      counterName: String
+  ): String =
     counterName.split("/")(1)
 
-  private[elitzur] def getValidationTypeFromCounterName(counterName: String): String =
+  private[elitzur] def getValidationTypeFromCounterName(
+      counterName: String
+  ): String =
     counterName.split("/")(2)
 
-  private[elitzur] def getCounterTypeFromCounterName(counterName: String): String =
+  private[elitzur] def getCounterTypeFromCounterName(
+      counterName: String
+  ): String =
     counterName.split("/")(3)
 
-  private[elitzur] def getValidationTypeFromCaseClass(className: Class[_], fieldName: String)
-  : String =
+  private[elitzur] def getValidationTypeFromCaseClass(
+      className: Class[_],
+      fieldName: String
+  ): String =
     getValidationTypeFromCaseClass(
-      className, ArraySeq.unsafeWrapArray(fieldName.split("\\."))
+      className,
+      ArraySeq.unsafeWrapArray(fieldName.split("\\."))
     ).getSimpleName
 
   private def getParameterizedInnerType(genericType: Type): Type = {
@@ -94,15 +109,20 @@ object ElitzurMetrics {
 
   // scalastyle:off cyclomatic.complexity
   @tailrec
-  private def getValidationTypeFromCaseClass(caseClassClass: Class[_],
-                                             fieldNames: Seq[String]): Class[_] = {
+  private def getValidationTypeFromCaseClass(
+      caseClassClass: Class[_],
+      fieldNames: Seq[String]
+  ): Class[_] = {
 
     val firstFieldName = fieldNames(0)
-    val firstFieldClass: Class[_] = caseClassClass.getDeclaredField(firstFieldName).getType
-    val firstFieldGenericType: Type = caseClassClass.getDeclaredField(firstFieldName).getGenericType
+    val firstFieldClass: Class[_] =
+      caseClassClass.getDeclaredField(firstFieldName).getType
+    val firstFieldGenericType: Type =
+      caseClassClass.getDeclaredField(firstFieldName).getGenericType
 
     val isOption = classOf[Option[_]].equals(firstFieldClass)
-    val isWrapped = classOf[ValidationStatus[_]].isAssignableFrom(firstFieldClass)
+    val isWrapped =
+      classOf[ValidationStatus[_]].isAssignableFrom(firstFieldClass)
 
     fieldNames match {
       case Seq(_) if isWrapped =>
@@ -113,11 +133,17 @@ object ElitzurMetrics {
       case Seq(_) =>
         // no parameterization
         firstFieldClass
-      case Seq(_, tail@_*) if isOption =>
-        getValidationTypeFromCaseClass(unwrapOptionType(firstFieldGenericType), tail)
-      case Seq(_, tail@_*) if isWrapped =>
-        getValidationTypeFromCaseClass(unwrapValidationStatus(firstFieldGenericType), tail)
-      case Seq(_, tail@_*) =>
+      case Seq(_, tail @ _*) if isOption =>
+        getValidationTypeFromCaseClass(
+          unwrapOptionType(firstFieldGenericType),
+          tail
+        )
+      case Seq(_, tail @ _*) if isWrapped =>
+        getValidationTypeFromCaseClass(
+          unwrapValidationStatus(firstFieldGenericType),
+          tail
+        )
+      case Seq(_, tail @ _*) =>
         getValidationTypeFromCaseClass(firstFieldClass, tail)
     }
   }
@@ -125,7 +151,9 @@ object ElitzurMetrics {
   // scalastyle:on cyclomatic.complexity
 
   /** return subset of all Scio counters named with Elitzur */
-  def getElitzurCounters(sr: ScioResult): Map[MetricName, metrics.MetricValue[Long]] = {
+  def getElitzurCounters(
+      sr: ScioResult
+  ): Map[MetricName, metrics.MetricValue[Long]] = {
     sr.allCounters
       .filter(counter => counter._1.toString.contains("Elitzur"))
   }

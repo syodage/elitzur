@@ -22,7 +22,8 @@ import scala.reflect.macros._
 private[elitzur] object ValidatorMacros {
 
   private[this] val ShowWarnDefault = true
-  private[this] val ShowWarnSettingRegex = "show-validator-fallback=(true|false)".r
+  private[this] val ShowWarnSettingRegex =
+    "show-validator-fallback=(true|false)".r
 
   // Add a level of indirection to prevent the macro from capturing
   // $outer which would make the Coder serialization fail
@@ -44,28 +45,32 @@ private[elitzur] object ValidatorMacros {
     // not serializable and we don't use them anyway
     // scalastyle:off line.size.limit
     val removeAnnotations =
-    new Transformer {
-      override def transform(tree: Tree): c.universe.Tree = {
-        tree match {
-          case Apply(AppliedTypeTree(Select(pack, TypeName("CaseClass")), ps),
-          List(typeName, isObject, isValueClass, params, _)) =>
-            Apply(AppliedTypeTree(Select(pack, TypeName("CaseClass")), ps),
-              List(typeName, isObject, isValueClass, params, q"""Array()"""))
+      new Transformer {
+        override def transform(tree: Tree): c.universe.Tree = {
+          tree match {
+            case Apply(
+                  AppliedTypeTree(Select(pack, TypeName("CaseClass")), ps),
+                  List(typeName, isObject, isValueClass, params, _)
+                ) =>
+              Apply(
+                AppliedTypeTree(Select(pack, TypeName("CaseClass")), ps),
+                List(typeName, isObject, isValueClass, params, q"""Array()""")
+              )
 
-          case q"""new magnolia.CaseClass[$tc, $t]($typeName, $isObject, $isValueClass, $params, $_){ $body }""" =>
-            q"""_root_.magnolia.CaseClass[$tc, $t]($typeName, $isObject, $isValueClass, $params, Array()){ $body }"""
+            case q"""new magnolia.CaseClass[$tc, $t]($typeName, $isObject, $isValueClass, $params, $_){ $body }""" =>
+              q"""_root_.magnolia.CaseClass[$tc, $t]($typeName, $isObject, $isValueClass, $params, Array()){ $body }"""
 
-          case q"com.spotify.elitzur.Validator.dispatch(new magnolia.SealedTrait($name, $subtypes, $_))" =>
-            q"_root_.com.spotify.elitzur.Validator.dispatch(new magnolia.SealedTrait($name, $subtypes, Array()))"
+            case q"com.spotify.elitzur.Validator.dispatch(new magnolia.SealedTrait($name, $subtypes, $_))" =>
+              q"_root_.com.spotify.elitzur.Validator.dispatch(new magnolia.SealedTrait($name, $subtypes, Array()))"
 
-          case q"""magnolia.Magnolia.param[$tc, $t, $p]($name, $idx, $repeated, $tcParam, $defaultVal, $_)""" =>
-            q"""_root_.magnolia.Magnolia.param[$tc, $t, $p]($name, $idx, $repeated, $tcParam, $defaultVal, Array())"""
+            case q"""magnolia.Magnolia.param[$tc, $t, $p]($name, $idx, $repeated, $tcParam, $defaultVal, $_)""" =>
+              q"""_root_.magnolia.Magnolia.param[$tc, $t, $p]($name, $idx, $repeated, $tcParam, $defaultVal, Array())"""
 
-          case _ =>
-            super.transform(tree)
+            case _ =>
+              super.transform(tree)
+          }
         }
       }
-    }
     // scalastyle:on line.size.limit
     val validator = removeAnnotations.transform(getLazyVal)
 
@@ -75,11 +80,11 @@ private[elitzur] object ValidatorMacros {
 
   //scalastyle:off line.size.limit
   /**
-   * Makes it possible to configure fallback warnings by passing
-   * "-Xmacro-settings:show-validator-fallback=true" as a Scalac option.
-   * Stolen from scio here:
-   * https://github.com/spotify/scio/blob/9379a2b8a6a6b30963841700f99ca2cf04857172/scio-macros/src/main/scala/com/spotify/scio/coders/CoderMacros.scala
-   */
+    * Makes it possible to configure fallback warnings by passing
+    * "-Xmacro-settings:show-validator-fallback=true" as a Scalac option.
+    * Stolen from scio here:
+    * https://github.com/spotify/scio/blob/9379a2b8a6a6b30963841700f99ca2cf04857172/scio-macros/src/main/scala/com/spotify/scio/coders/CoderMacros.scala
+    */
   //scalastyle:on line.size.limit
   private[this] def showWarn(c: whitebox.Context) =
     c.settings
@@ -88,7 +93,6 @@ private[elitzur] object ValidatorMacros {
           value.toBoolean
       }
       .getOrElse(ShowWarnDefault)
-
 
   def issueFallbackWarning[T: c.WeakTypeTag](c: whitebox.Context): c.Tree = {
     import c.universe._
@@ -121,7 +125,8 @@ private[elitzur] object ValidatorMacros {
     // TODO this doesn't show up when using c.warning.  We might want to use that
     if (shouldWarn) c.echo(c.enclosingPosition, warning)
 
-    val fallback = q"""new _root_.com.spotify.elitzur.validators.IgnoreValidator[$wtt]"""
+    val fallback =
+      q"""new _root_.com.spotify.elitzur.validators.IgnoreValidator[$wtt]"""
     fallback
   }
 }

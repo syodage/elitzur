@@ -19,7 +19,11 @@ package com.spotify.elitzur
 import java.util.Locale
 
 import com.spotify.elitzur.types.Owner
-import com.spotify.elitzur.validators.{BaseCompanion, BaseValidationType, SimpleCompanionImplicit}
+import com.spotify.elitzur.validators.{
+  BaseCompanion,
+  BaseValidationType,
+  SimpleCompanionImplicit
+}
 
 /**
   * This file contains 'fake' ValidationType & related implementations, used only to test that
@@ -35,7 +39,6 @@ private[this] case object Blizzard extends Owner {
   override def name: String = "Blizzard"
 }
 
-
 /* VALIDATION TYPES */
 
 object Companions {
@@ -49,13 +52,12 @@ object Companions {
     SimpleCompanionImplicit(BucketizedReferrerExampleCompanion)
 }
 
-
-case class CountryCodeExample(data: String)
-  extends BaseValidationType[String] {
+case class CountryCodeExample(data: String) extends BaseValidationType[String] {
   override def checkValid: Boolean = Locale.getISOCountries.contains(data)
 }
 
-object CountryCodeExampleCompanion extends BaseCompanion[String, CountryCodeExample] {
+object CountryCodeExampleCompanion
+    extends BaseCompanion[String, CountryCodeExample] {
   def validationType: String = "CountryCode"
 
   def bigQueryType: String = "STRING"
@@ -69,10 +71,7 @@ object CountryCodeExampleCompanion extends BaseCompanion[String, CountryCodeExam
   def description: String = "Represents an ISO standard two-letter country code"
 }
 
-
-
-case class AgeExample(data: Long)
-  extends BaseValidationType[Long] {
+case class AgeExample(data: Long) extends BaseValidationType[Long] {
   override def checkValid: Boolean = data > 0L && data < 150L
 }
 
@@ -90,13 +89,12 @@ object AgeExampleCompanion extends BaseCompanion[Long, AgeExample] {
   def description: String = "This represents an age above 0 and less than 150"
 }
 
-
-case class NonNegativeLongExample(data: Long)
-  extends BaseValidationType[Long] {
+case class NonNegativeLongExample(data: Long) extends BaseValidationType[Long] {
   override def checkValid: Boolean = data >= 0L
 }
 
-object NonNegativeLongExampleCompanion extends BaseCompanion[Long, NonNegativeLongExample] {
+object NonNegativeLongExampleCompanion
+    extends BaseCompanion[Long, NonNegativeLongExample] {
   def validationType: String = "NonNegativeLong"
 
   def bigQueryType: String = "INTEGER"
@@ -111,30 +109,28 @@ object NonNegativeLongExampleCompanion extends BaseCompanion[Long, NonNegativeLo
 }
 
 case class BucketizedReferrerExample(data: String)
-  extends BaseValidationType[String] {
-  private val values: Set[String] = Set(
-    "home",
-    "your_library",
-    "search",
-    "browse",
-    "radio",
-    "other")
+    extends BaseValidationType[String] {
+  private val values: Set[String] =
+    Set("home", "your_library", "search", "browse", "radio", "other")
 
   override def checkValid: Boolean = values.contains(data)
 }
 
 object BucketizedReferrerExampleCompanion
-  extends BaseCompanion[String, BucketizedReferrerExample] {
+    extends BaseCompanion[String, BucketizedReferrerExample] {
   def validationType: String = "BucketizedReferrer"
 
   def bigQueryType: String = "STRING"
 
-  def apply(data: String): BucketizedReferrerExample = BucketizedReferrerExample(data)
+  def apply(data: String): BucketizedReferrerExample =
+    BucketizedReferrerExample(data)
 
-  def parse(data: String): BucketizedReferrerExample = BucketizedReferrerExample(data)
+  def parse(data: String): BucketizedReferrerExample =
+    BucketizedReferrerExample(data)
 
   def owner: Owner = Blizzard
 
-  def description: String = "The page/tab in the mobile or desktop App from which stream was " +
-    "initiated.  Possible values:  home, your_library, search, browse, radio, other"
+  def description: String =
+    "The page/tab in the mobile or desktop App from which stream was " +
+      "initiated.  Possible values:  home, your_library, search, browse, radio, other"
 }

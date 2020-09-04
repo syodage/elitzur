@@ -19,20 +19,30 @@ package com.spotify.elitzur.converters.avro
 import java.nio.ByteBuffer
 
 import org.apache.avro.Schema
-import org.apache.avro.generic.{GenericData, GenericRecord, GenericRecordBuilder}
+import org.apache.avro.generic.{
+  GenericData,
+  GenericRecord,
+  GenericRecordBuilder
+}
 
 import scala.jdk.CollectionConverters._
 
 object AvroElitzurConversionUtils {
-  private[elitzur] def getAvroField(r: GenericRecord, fieldName: Seq[String]): Object = {
+  private[elitzur] def getAvroField(
+      r: GenericRecord,
+      fieldName: Seq[String]
+  ): Object = {
     fieldName match {
-      case name :: Nil => r.get(name)
+      case name :: Nil                => r.get(name)
       case name :: "innerData" :: Nil => r.get(name)
-      case head :: tail => getAvroField(r.get(head).asInstanceOf[GenericRecord], tail)
+      case head :: tail =>
+        getAvroField(r.get(head).asInstanceOf[GenericRecord], tail)
     }
   }
 
-  private[elitzur] def convertOptional[T](v: java.util.Optional[T]): Option[T] = {
+  private[elitzur] def convertOptional[T](
+      v: java.util.Optional[T]
+  ): Option[T] = {
     if (v.isPresent) Option(v.get()) else None
   }
 
@@ -44,7 +54,9 @@ object AvroElitzurConversionUtils {
     bArray
   }
 
-  private[elitzur] def recordToGenericData[T <: GenericRecord](record: T): GenericData.Record = {
+  private[elitzur] def recordToGenericData[T <: GenericRecord](
+      record: T
+  ): GenericData.Record = {
     val defaultBuilder = new GenericRecordBuilder(record.getSchema)
     record.getSchema.getFields.asScala.foreach { f =>
       defaultBuilder.set(f.name(), record.get(f.name()))
@@ -59,5 +71,7 @@ object AvroElitzurConversionUtils {
 
   private[elitzur] def isAvroArrayType(schema: Schema): Boolean =
     Schema.Type.ARRAY.equals(schema.getType) ||
-      (Schema.Type.UNION.equals(schema.getType) && schema.getTypes.contains(Schema.Type.ARRAY))
+      (Schema.Type.UNION.equals(schema.getType) && schema.getTypes.contains(
+        Schema.Type.ARRAY
+      ))
 }
