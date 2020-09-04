@@ -123,7 +123,7 @@ final private[elitzur] case class DerivedValidator[T] private(caseClass: CaseCla
     var i = 0
     var shouldValidate = false
 
-    while (i < ps.length) {
+    while (i < ps.length && !shouldValidate) {
       val p = ps(i)
       if (p.typeclass.shouldValidate) {
         shouldValidate = true

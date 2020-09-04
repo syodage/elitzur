@@ -214,7 +214,7 @@ object Validator extends Serializable {
     val params = caseClass.parameters
     var i = 0
     var shouldValidate = false
-    while (i < params.length) {
+    while (i < params.length && !shouldValidate) {
       val param = params(i)
       if (param.typeclass.shouldValidate) {
         shouldValidate = true
